@@ -478,30 +478,18 @@ SPREADSHEET_ID=スプレッドシートID
 SHEET_NAME=シート名
 ```
 
-注意点。
-
-```text
-.env に書く
-.venv ではない
-```
-
 スプレッドシートIDはURLの `/d/` と `/edit` の間だけを入れる。
 
 ```text
 https://docs.google.com/spreadsheets/d/【ここだけ】/edit
 ```
 
-末尾の `/` や `/edit` は入れない。
-
 例。
 
 ```env
-SPREADSHEET_ID=1w-WNAf6JBtuj-PUuo_ZpwQYMDZuXH1rT
-SHEET_NAME=20260624
+SPREADSHEET_ID=****
+SHEET_NAME=****
 ```
-
-前回の404エラーは、`SPREADSHEET_ID` の末尾に `/` が入っていた可能性が高い。
-
 ---
 
 ### 2.9 Pythonコードを作成する
