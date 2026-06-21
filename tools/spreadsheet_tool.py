@@ -70,3 +70,36 @@ def append_row(values: list[str]) -> dict:
     )
 
     return result
+
+def update_cell(cell: str, value: str) -> dict:
+    spreadsheet_id = os.getenv("SPREADSHEET_ID")
+    sheet_name = os.getenv("SHEET_NAME")
+
+    if not spreadsheet_id:
+        raise ValueError("SPREADSHEET_ID が .env に設定されていません。")
+
+    if not sheet_name:
+        raise ValueError("SHEET_NAME が .env に設定されていません。")
+
+    from tools.policy import validate_update_cell
+    validate_update_cell(sheet_name, cell, value)
+
+    service = get_sheets_service()
+
+    body = {
+        "values": [[value]]
+    }
+
+    result = (
+        service.spreadsheets()
+        .values()
+        .update(
+            spreadsheetId=spreadsheet_id,
+            range=f"{sheet_name}!{cell}",
+            valueInputOption="USER_ENTERED",
+            body=body,
+        )
+        .execute()
+    )
+
+    return result
