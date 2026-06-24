@@ -4,7 +4,7 @@ from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
-
+from tools.policy import validate_append_row
 
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
 
@@ -47,6 +47,8 @@ def append_row(values: list[str]) -> dict:
 
     if not sheet_name:
         raise ValueError("SHEET_NAME が .env に設定されていません。")
+
+    validate_append_row(sheet_name, values)
 
     service = get_sheets_service()
 
