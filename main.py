@@ -2,7 +2,7 @@ import sys
 from datetime import datetime
 from dotenv import load_dotenv
 
-from tools.spreadsheet_tool import append_row, update_cell
+from tools.spreadsheet_tool import append_row, update_row
 
 
 def replace_special_values(values: list[str]) -> list[str]:
@@ -14,13 +14,21 @@ def replace_special_values(values: list[str]) -> list[str]:
     ]
 
 
+def print_usage() -> None:
+    print("使い方:")
+    print("  python3 main.py add \"値1\" \"値2\" \"値3\"")
+    print("  python3 main.py update <開始セル> \"値1\" \"値2\" ...")
+    print("")
+    print("例:")
+    print("  python3 main.py add \"企業A\" \"確認中\" --now")
+    print("  python3 main.py update A6 \"企業A\" \"対応済み\" --now")
+
+
 def main():
     load_dotenv()
 
     if len(sys.argv) < 2:
-        print("使い方:")
-        print("  python3 main.py add \"値1\" \"値2\" \"値3\"")
-        print("  python3 main.py update B2 \"更新後の値\"")
+        print_usage()
         sys.exit(1)
 
     command = sys.argv[1]
@@ -30,7 +38,7 @@ def main():
 
         if len(values) == 0:
             print("追加する値がありません。")
-            print("例: python3 main.py add \"企業A\" \"確認中\" --now")
+            print_usage()
             sys.exit(1)
 
         values = replace_special_values(values)
@@ -46,23 +54,22 @@ def main():
 
     if command == "update":
         if len(sys.argv) < 4:
-            print("更新するセルと値を指定してください。")
-            print("例: python3 main.py update B2 \"対応済み\"")
+            print("開始セルと更新する値を指定してください。")
+            print_usage()
             sys.exit(1)
 
-        cell = sys.argv[2]
-        value = sys.argv[3]
+        start_cell = sys.argv[2]
+        values = sys.argv[3:]
 
-        if value == "--now":
-            value = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        values = replace_special_values(values)
 
-        result = update_cell(cell, value)
+        result = update_row(start_cell, values)
 
         print("スプレッドシートを更新しました。")
-        print("更新セル:")
-        print(cell)
+        print("開始セル:")
+        print(start_cell)
         print("更新内容:")
-        print(value)
+        print(values)
         print("更新範囲:")
         print(result.get("updatedRange"))
         return
