@@ -166,7 +166,32 @@ def append_row(values: list[str]) -> dict:
 ```
 
 ## 4. logging
-skip
+Spreadsheetへの書き込みが成功した場合、`logs/audit_log.jsonl` に操作ログを追記する。
+
+ログ項目は以下。
+
+```
+logged_at
+actor
+action
+spreadsheet_id
+sheet_name
+target_range
+target_cell
+old_value
+new_value
+new_values
+result
+```
+
+ログファイルは書き込み後に owner read-only に戻す。
+
+```
+logs/audit_log.jsonl
+```
+
+ただし、ローカルファイルのread-onlyは完全な改ざん防止ではない。
+本番運用では、Cloud Logging、監査ログ用DB、WORMストレージ、追記専用権限のある外部ストレージを検討する。
 
 ## 5. Enable the addition of values specified from the terminal
 

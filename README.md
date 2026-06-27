@@ -51,6 +51,7 @@ sheet-agent-cli/
 
   tools/
     __init__.py
+    audit_log.py
     spreadsheet_tool.py
     policy.py
 
@@ -70,13 +71,14 @@ requirements.txt
 client_secret.json
 test_append.py
 tools/__init__.py
+tools/audit_log.py
 tools/spreadsheet_tool.py
+tools/policy.py
 ```
 
 以下は、AI Agent化するときに使うため、現時点では未使用。
 
 ```text
-tools/policy.py
 prompts/base.md
 prompts/spreadsheet.md
 services/llm_client.py
@@ -690,3 +692,56 @@ update_range
 ```
 
 外部公開や本番データ更新を伴う操作は必ず承認制にする。
+
+---
+
+## 5. 操作ログ
+
+Spreadsheetへの書き込みが成功した場合、以下のログファイルに操作内容を追記する。
+
+```text
+logs/audit_log.jsonl
+```
+
+ログは1行ごとのJSON形式で保存する。
+
+主なログ項目。
+
+```text
+logged_at       操作ログを書き込んだUTC時刻
+actor           操作ユーザ
+action          append_row / update_cell
+spreadsheet_id  操作対象のSpreadsheet ID
+sheet_name      操作対象のシート名
+target_range    実際に更新された範囲
+target_cell     update_cell時の対象セル
+old_value       update_cell時の更新前の値
+new_value       update_cell時の更新後の値
+new_values      append_row時に追加した値
+result          Google Sheets APIの更新件数
+```
+
+CLI実行時のユーザは、以下の優先順で決まる。
+
+```text
+1. SHEET_AGENT_USER
+2. PCの実行ユーザ名
+```
+
+例。
+
+```bash
+SHEET_AGENT_USER=slack-U123456 python3 main.py add "企業A" "確認中" --now
+SHEET_AGENT_USER=slack-U123456 python3 main.py update B2 "対応済み"
+```
+
+ログファイルは書き込み後にread-onlyへ戻す。
+
+```text
+logs/audit_log.jsonl = owner read-only
+```
+
+注意点。
+
+ローカルファイルのread-onlyは、誤編集を防ぐための最低限の保護であり、完全な改ざん防止ではない。  
+本番運用で「誰も編集できないログ」にする場合は、Cloud Logging、監査ログ用DB、WORMストレージ、または追記専用権限のある外部ストレージに送る。
